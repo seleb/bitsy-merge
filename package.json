@@ -1,0 +1,33 @@
+{
+	"name": "@bitsy/merge",
+	"version": "1.0.0",
+	"description": "merge tool for bitsy gamedata",
+	"main": "./dist/index.js",
+	"module": "./dist/index.es.js",
+	"unpkg": "./dist/index.iife.js",
+	"keywords": [
+		"bitsy",
+		"optimization"
+	],
+	"author": "Sean S. LeBlanc <sean.s.leblanc@gmail.com>",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:seleb/bitsy-merge.git"
+	},
+	"scripts": {
+		"build": "rollup -c",
+		"prepare": "npm run build"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.4.4",
+		"@babel/preset-env": "^7.4.4",
+		"rollup": "^1.11.2",
+		"rollup-plugin-babel": "^4.3.2",
+		"rollup-plugin-commonjs": "^9.2.1",
+		"rollup-plugin-node-resolve": "^4.2.3"
+	},
+	"dependencies": {
+		"@bitsy/parser": "^1.0.2"
+	}
+}
