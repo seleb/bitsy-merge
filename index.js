@@ -7,7 +7,6 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	const add = {
 		variables: {},
 		endings: {},
-		exits: {},
 		dialogue: {},
 		items: {},
 		sprites: {},
@@ -18,7 +17,6 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	const skip = {
 		variables: {},
 		endings: {},
-		exits: {},
 		dialogue: {},
 		items: {},
 		sprites: {},
@@ -65,7 +63,6 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	[
 		'variables',
 		'endings',
-		'exits',
 		'dialogue',
 		'items',
 		'sprites',
