@@ -42,6 +42,37 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		}) => dialogueID === oldId).forEach(obj => {
 			obj.dialogueID = newId;
 		})],
+		['items', (oldId, newId) => Object.values(b.rooms).map(({
+			items
+		}) => items).filter(({
+			id
+		}) => id === oldId).forEach(obj => {
+			obj.id = newId;
+		})],
+		['sprites', () => {}],
+		['tiles', (oldId, newId) => Object.values(b.rooms).map(({
+			tiles
+		}) => tiles).forEach(tiles => {
+			tiles.forEach(row => {
+				row.forEach((tile, idx) => {
+					if (tile === oldId) {
+						row[idx] = newId;
+					}
+				});
+			});
+		})],
+		['palettes', (oldId, newId) => Object.values(b.rooms).filter(({
+			palette
+		}) => palette === oldId).forEach(room => {
+			room.palette = newId;
+		})],
+		['rooms', (oldId, newId) => Object.values(b.rooms).map(({
+			exits
+		}) => exits).filter(({
+			to
+		}) => to === oldId).forEach(exit => {
+			exit.to = newId;
+		})],
 	].forEach(([map, updateReferences]) => {
 		for (let id in b[map]) {
 			const vb = b[map][id];
@@ -78,4 +109,3 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 
 	return a.toString();
 }
-
