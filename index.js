@@ -115,6 +115,12 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		}
 	});
 
-
-	return a.toString();
+	return {
+		gamedata: a.toString(),
+		added: add,
+		skipped: skip,
+		toString: function() {
+			return this.gamedata;
+		},
+	};
 }
