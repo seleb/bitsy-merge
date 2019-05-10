@@ -27,7 +27,11 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		rooms: {},
 	};
 
+	// check for conflicts
 	[
+		['variables', oldId => {
+			throw new Error(`Couldn't merge: both games define a starting value for "${oldId}"; please resolve this conflict externally.`);
+		}],
 		['endings', (oldId, newId) => Object.values(b.rooms).map(({
 			endings
 		}) => endings).filter(({
