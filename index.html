@@ -4,8 +4,10 @@
 	<title>bitsy-merge</title>
 	<script src="./dist/index.iife.js"></script>
 	<style>
+		/* bitsy-ish.css */
 		* {
 			box-sizing: border-box;
+			font-family: sans-serif;
 		}
 
 		html,
@@ -16,16 +18,93 @@
 			height: 100%;
 		}
 
+		textarea,
+		input[type="text"] {
+			font-family: monospace;
+		}
+
+		button,
+		input[type="button"],
+		input[type="submit"] {
+			font-size: 1rem;
+			padding: 0.5rem;
+			margin: 0;
+			margin-bottom: 0.25rem;
+			border: none;
+			vertical-align: middle;
+			border-radius: 0.25rem;
+			background: #e8e8ff;
+			color: #6767b2;
+		}
+
+		button:focus,
+		input[type="button"]:focus,
+		input[type="submit"]:focus {
+			outline: none;
+		}
+
+		button:active,
+		input[type="button"]:active,
+		input[type="submit"]:active {
+			background: #6767b2;
+			color: #fff;
+		}
+
 		body {
-			padding: 1em;
+			display: grid;
+			grid-template-rows: auto 1fr;
+			background: #ccccff;
+			color: #6767b2;
+		}
+
+		body>header {
+			background: #fff;
+			padding: 1rem 2rem;
+			font-size: 1.25rem;
+			border-bottom: solid 0.25rem #6767b2;
+		}
+
+		body>main {
+			padding: 1rem;
+			height: 100%;
+		}
+
+		section {
+			background: #fff;
+			border-bottom: solid 0.25em #6767b2;
+			display: inline-block;
+			vertical-align: top;
+			padding: 1rem;
+			border-radius: 0.5rem;
+		}
+
+		section>header {
+			background: #e8e8ff;
+			color: #6767b2;
+			padding: 0.5rem 1rem;
+			margin: -1rem;
+			margin-bottom: 1rem;
+			font-size: 1.25rem;
+			border-top-right-radius: 0.5rem;
+			border-top-left-radius: 0.5rem;
+		}
+
+		label {
+			background: #e8e8ff;
+			padding: 0.5rem;
+			margin-bottom: 0.5rem;
+			border-radius: 0.25rem;
+		}
+	</style>
+	<style>
+		html {
+			font-family: monospace;
 		}
 
 		form {
-			font-family: monospace;
 			display: grid;
-			grid-gap: 1em;
+			grid-gap: 1rem;
 			grid-template-columns: 1fr 1fr;
-			grid-template-rows: 1fr auto;
 			height: 100%;
 		}
 
@@ -33,6 +112,11 @@
 			flex: auto;
 			display: flex;
 			flex-direction: column;
+		}
+
+		label:nth-of-type(3),
+		label:nth-of-type(4) {
+			flex: none;
 		}
 
 		span {
@@ -43,42 +127,50 @@
 			flex: auto;
 		}
 
-		input {
-			grid-column-start: 1;
-			grid-column-end: 3;
-		}
-
 		section {
 			display: flex;
 			flex-direction: column;
+		}
+
+		@media only screen and (max-width: 40rem) {
+			form {
+				grid-template-columns: 1fr;
+			}
 		}
 	</style>
 </head>
 
 <body>
-	<form>
-		<section className="input">
-			<label>
-				<span>Base:</span>
-				<textarea name="base" placeholder="Paste your base gamedata here"></textarea>
-			</label>
-			<label>
-				<span>Add:</span>
-				<textarea name="add" placeholder="Paste your gamedata to add here"></textarea>
-			</label>
-			<label>
-				<span>Prefix:</span>
-				<input name="prefix" placeholder="Prefix for conflicted content" />
-			</label>
-		</section>
-		<section className="output">
-			<label>
-				<span>Output (click to copy):</span>
-				<textarea name="output" placeholder="Merged gamedata will go here" readonly></textarea>
-			</label>
-		</section>
-		<input type="submit" value="Merge" />
-	</form>
+	<header>
+		bitsy-merge
+	</header>
+	<main>
+		<form>
+			<section>
+				<header>Input</header>
+				<label>
+					<span>Base:</span>
+					<textarea name="base" placeholder="Paste your base gamedata here"></textarea>
+				</label>
+				<label>
+					<span>Add:</span>
+					<textarea name="add" placeholder="Paste your gamedata to add here"></textarea>
+				</label>
+				<label>
+					<span>Prefix:</span>
+					<input type="text" name="prefix" placeholder="Prefix for conflicted content" />
+				</label>
+				<input type="submit" value="Merge" />
+			</section>
+			<section>
+				<header>Output</header>
+				<label>
+					<span>Output (click to copy):</span>
+					<textarea name="output" placeholder="Merged gamedata will go here" readonly></textarea>
+				</label>
+			</section>
+		</form>
+	</main>
 
 	<script>
 		var form = document.querySelector('form');
