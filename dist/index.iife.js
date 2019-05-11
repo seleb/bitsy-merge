@@ -594,9 +594,17 @@ ${this.value}`;
 	var dist_11 = dist.BitsyVariable;
 	var dist_12 = dist.BitsyParser;
 
+	function parse(gamedata) {
+	  try {
+	    return parser.BitsyParser.parse(gamedata.replace(/\r\n/g, '\n').split('\n'));
+	  } catch (err) {
+	    throw new Error(`Failed to parse gamedata: ${err.message}`);
+	  }
+	}
+
 	function merge(baseGamedata, addGamedata, prefix) {
-	  const a = parser.BitsyParser.parse(baseGamedata.replace(/\r\n/g, '\n').split('\n'));
-	  const b = parser.BitsyParser.parse(addGamedata.replace(/\r\n/g, '\n').split('\n'));
+	  const a = parse(baseGamedata);
+	  const b = parse(addGamedata);
 	  const add = {
 	    variables: {},
 	    endings: {},
