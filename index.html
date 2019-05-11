@@ -1,0 +1,110 @@
+<html>
+
+<head>
+	<title>bitsy-merge</title>
+	<script src="./dist/index.iife.js"></script>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body,
+		form {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+
+		body {
+			padding: 1em;
+		}
+
+		form {
+			font-family: monospace;
+			display: grid;
+			grid-gap: 1em;
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: 1fr auto;
+			height: 100%;
+		}
+
+		label {
+			flex: auto;
+			display: flex;
+			flex-direction: column;
+		}
+
+		span {
+			flex: none;
+		}
+
+		textarea {
+			flex: auto;
+		}
+
+		input {
+			grid-column-start: 1;
+			grid-column-end: 3;
+		}
+
+		section {
+			display: flex;
+			flex-direction: column;
+		}
+	</style>
+</head>
+
+<body>
+	<form>
+		<section className="input">
+			<label>
+				<span>Base:</span>
+				<textarea name="base" placeholder="Paste your base gamedata here"></textarea>
+			</label>
+			<label>
+				<span>Add:</span>
+				<textarea name="add" placeholder="Paste your gamedata to add here"></textarea>
+			</label>
+			<label>
+				<span>Prefix:</span>
+				<input name="prefix" placeholder="Prefix for conflicted content" />
+			</label>
+		</section>
+		<section className="output">
+			<label>
+				<span>Output (click to copy):</span>
+				<textarea name="output" placeholder="Merged gamedata will go here" readonly></textarea>
+			</label>
+		</section>
+		<input type="submit" value="Merge" />
+	</form>
+
+	<script>
+		var form = document.querySelector('form');
+		var output = document.querySelector('[name="output"]');
+		form.onsubmit = function (event) {
+			event.preventDefault();
+			var formData = new FormData(event.target);
+			var base = formData.get('base');
+			var add = formData.get('add');
+			var prefix = formData.get('prefix');
+			if (!prefix) {
+				output.value = "Error: please choose a prefix!";
+				return;
+			}
+			try {
+				output.value = window.bitsyMerge(base, add, prefix);
+			} catch (error) {
+				output.value = `Error: ${error.message}`;
+			}
+		}
+		output.onclick = function (event) {
+			event.preventDefault();
+			event.target.select();
+			document.execCommand('copy');
+		}
+	</script>
+</body>
+
+</html>
