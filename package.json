@@ -7,7 +7,7 @@
 	"unpkg": "./dist/index.iife.js",
 	"keywords": [
 		"bitsy",
-		"optimization"
+		"merge"
 	],
 	"author": "Sean S. LeBlanc <sean.s.leblanc@gmail.com>",
 	"license": "MIT",
