@@ -74,14 +74,23 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		}) => palette === oldId).forEach(room => {
 			room.palette = newId;
 		})],
-		// rooms are referenced by rooms' exits
-		['rooms', (oldId, newId) => Object.values(b.rooms).map(({
-			exits
-		}) => exits).filter(({
-			to
-		}) => to === oldId).forEach(exit => {
-			exit.to = newId;
-		})],
+		// rooms are referenced by rooms' exits and by sprites' positions
+		['rooms', (oldId, newId) => {
+			Object.values(b.rooms).map(({
+				exits
+			}) => exits).filter(({
+				to
+			}) => to === oldId).forEach(exit => {
+				exit.to = newId;
+			});
+			Object.values(b.sprites).map(({
+				position
+			}) => position).filter(({
+				room
+			}) => room === oldId).forEach(position => {
+				position.room = newId;
+			});
+		}],
 	].forEach(([map, updateReferences]) => {
 		for (let id in b[map]) {
 			const vb = b[map][id];
