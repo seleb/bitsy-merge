@@ -168,6 +168,10 @@
 					<span>Output (click to copy):</span>
 					<textarea name="output" placeholder="Merged gamedata will go here" readonly></textarea>
 				</label>
+				<label>
+					<span>Log:</span>
+					<textarea name="log" placeholder="Log will go here" readonly></textarea>
+				</label>
 			</section>
 		</form>
 	</main>
@@ -175,6 +179,7 @@
 	<script>
 		var form = document.querySelector('form');
 		var output = document.querySelector('[name="output"]');
+		var log = document.querySelector('[name="log"]');
 		form.onsubmit = function (event) {
 			event.preventDefault();
 			var formData = new FormData(event.target);
@@ -182,13 +187,20 @@
 			var add = formData.get('add');
 			var prefix = formData.get('prefix');
 			if (!prefix) {
-				output.value = "Error: please choose a prefix!";
+				output.value = "";
+				log.value = "Error: please choose a prefix!";
 				return;
 			}
 			try {
-				output.value = window.bitsyMerge(base, add, prefix);
+				var merged = window.bitsyMerge(base, add, prefix);
+				output.value = merged.gamedata;
+				log.value = `Merged successfully!
+
+Detail:
+${JSON.stringify({ added: merged.added, skipped: merged.skipped }, undefined, 2)}`;
 			} catch (error) {
-				output.value = `Error: ${error.message}`;
+				output.value = "";
+				log.value = `Error: ${error.message}`;
 			}
 		}
 		output.onclick = function (event) {
