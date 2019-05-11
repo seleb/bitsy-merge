@@ -30,7 +30,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	[
 		// variable overlaps are a fatal error
 		['variables', oldId => {
-			throw new Error(`Couldn't merge: both games define a starting value for "${oldId}"; please resolve this conflict externally.`);
+			throw new Error(`Couldn't merge: both games define a starting value for "VAR ${oldId}"; please resolve this conflict externally.`);
 		}],
 		// endings are referenced by rooms' ending list
 		['endings', (oldId, newId) => Object.values(b.rooms).map(({
