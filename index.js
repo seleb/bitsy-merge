@@ -36,13 +36,13 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		['endings', (oldId, newId) => Object.values(b.rooms).map(({
 			endings
 		}) => endings).filter(({
-			id
+			id,
 		}) => id === oldId).forEach(ending => {
 			ending.id = newId;
 		})],
 		// dialogue is referenced by sprites and items
 		['dialogue', (oldId, newId) => Object.values(b.items).concat(Object.values(b.sprites)).filter(({
-			dialogueID
+			dialogueID,
 		}) => dialogueID === oldId).forEach(obj => {
 			obj.dialogueID = newId;
 		})],
@@ -50,7 +50,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		['items', (oldId, newId) => Object.values(b.rooms).map(({
 			items
 		}) => items).filter(({
-			id
+			id,
 		}) => id === oldId).forEach(obj => {
 			obj.id = newId;
 		})],
@@ -58,7 +58,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		['sprites', () => {}],
 		// tiles are referenced by rooms' tilemap
 		['tiles', (oldId, newId) => Object.values(b.rooms).map(({
-			tiles
+			tiles,
 		}) => tiles).forEach(tiles => {
 			tiles.forEach(row => {
 				row.forEach((tile, idx) => {
@@ -70,21 +70,21 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		})],
 		// palettes are referenced by rooms
 		['palettes', (oldId, newId) => Object.values(b.rooms).filter(({
-			palette
+			palette,
 		}) => palette === oldId).forEach(room => {
 			room.palette = newId;
 		})],
 		// rooms are referenced by rooms' exits and by sprites' positions
 		['rooms', (oldId, newId) => {
 			Object.values(b.rooms).map(({
-				exits
+				exits,
 			}) => exits).filter(({
-				to
+				to,
 			}) => to === oldId).forEach(exit => {
 				exit.to = newId;
 			});
 			Object.values(b.sprites).map(({
-				position
+				position,
 			}) => position).filter(({
 				room
 			}) => room === oldId).forEach(position => {
@@ -128,7 +128,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		gamedata: a.toString(),
 		added: add,
 		skipped: skip,
-		toString: function() {
+		toString: function () {
 			return this.gamedata;
 		},
 	};
