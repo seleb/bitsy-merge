@@ -92,12 +92,14 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 				exit.to = newId;
 			});
 			Object.values(b.sprites).map(({
-				position,
-			}) => position).filter(({
-				room
-			}) => room === oldId).forEach(position => {
-				position.room = newId;
-			});
+					position,
+				}) => position)
+				.filter(p => p)
+				.filter(({
+					room
+				}) => room === oldId).forEach(position => {
+					position.room = newId;
+				});
 		}],
 	].forEach(([map, updateReferences]) => {
 		for (let id in b[map]) {
