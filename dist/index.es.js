@@ -674,7 +674,7 @@ function merge(baseGamedata, addGamedata, prefix) {
     });
     Object.values(b.sprites).map(({
       position
-    }) => position).filter(({
+    }) => position).filter(p => p).filter(({
       room
     }) => room === oldId).forEach(position => {
       position.room = newId;
