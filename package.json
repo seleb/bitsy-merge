@@ -35,5 +35,9 @@
 	},
 	"jest": {
 		"testEnvironment": "node"
-	}
+	},
+	"files": [
+		"/dist",
+		"index.js"
+	]
 }
