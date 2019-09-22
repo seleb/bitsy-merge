@@ -692,7 +692,7 @@ function merge(baseGamedata, addGamedata, prefix) {
   ['items', function (oldId, newId) {
     return Object.values(b.rooms).forEach(function (_ref4) {
       var items = _ref4.items;
-      return items.filter(function (_ref5) {
+      items.filter(function (_ref5) {
         var id = _ref5.id;
         return id === oldId;
       }).forEach(function (obj) {
@@ -724,14 +724,14 @@ function merge(baseGamedata, addGamedata, prefix) {
     });
   }], // rooms are referenced by rooms' exits and by sprites' positions
   ['rooms', function (oldId, newId) {
-    Object.values(b.rooms).map(function (_ref8) {
+    Object.values(b.rooms).forEach(function (_ref8) {
       var exits = _ref8.exits;
-      return exits;
-    }).filter(function (_ref9) {
-      var to = _ref9.to;
-      return to === oldId;
-    }).forEach(function (exit) {
-      exit.to = newId;
+      exits.filter(function (_ref9) {
+        var room = _ref9.to.room;
+        return room === oldId;
+      }).forEach(function (exit) {
+        exit.to.room = newId;
+      });
     });
     Object.values(b.sprites).map(function (_ref10) {
       var position = _ref10.position;

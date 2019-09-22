@@ -86,12 +86,16 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		})],
 		// rooms are referenced by rooms' exits and by sprites' positions
 		['rooms', (oldId, newId) => {
-			Object.values(b.rooms).map(({
+			Object.values(b.rooms).forEach(({
 				exits,
-			}) => exits).filter(({
-				to,
-			}) => to === oldId).forEach(exit => {
-				exit.to = newId;
+			}) => {
+				exits.filter(({
+					to: {
+						room,
+					},
+				}) => room === oldId).forEach(exit => {
+					exit.to.room = newId;
+				});
 			});
 			Object.values(b.sprites).map(({
 					position,
