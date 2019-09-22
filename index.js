@@ -55,12 +55,14 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 			obj.dialogueID = newId;
 		})],
 		// items are referenced by rooms' item list
-		['items', (oldId, newId) => Object.values(b.rooms).map(({
+		['items', (oldId, newId) => Object.values(b.rooms).forEach(({
 			items
-		}) => items).filter(({
-			id,
-		}) => id === oldId).forEach(obj => {
-			obj.id = newId;
+		}) => {
+			items.filter(({
+				id,
+			}) => id === oldId).forEach(obj => {
+				obj.id = newId;
+			});
 		})],
 		// sprites aren't referenced
 		['sprites', () => {}],
@@ -84,12 +86,16 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 		})],
 		// rooms are referenced by rooms' exits and by sprites' positions
 		['rooms', (oldId, newId) => {
-			Object.values(b.rooms).map(({
+			Object.values(b.rooms).forEach(({
 				exits,
-			}) => exits).filter(({
-				to,
-			}) => to === oldId).forEach(exit => {
-				exit.to = newId;
+			}) => {
+				exits.filter(({
+					to: {
+						room,
+					},
+				}) => room === oldId).forEach(exit => {
+					exit.to.room = newId;
+				});
 			});
 			Object.values(b.sprites).map(({
 					position,
@@ -104,7 +110,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	].forEach(([map, updateReferences]) => {
 		for (let id in b[map]) {
 			const vb = b[map][id];
-			const va = a[map][id]
+			const va = a[map][id];
 			if (!va) {
 				add[map][id] = vb;
 			} else if (va.toString() === vb.toString()) {
