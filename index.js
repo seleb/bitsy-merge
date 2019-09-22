@@ -104,7 +104,7 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 	].forEach(([map, updateReferences]) => {
 		for (let id in b[map]) {
 			const vb = b[map][id];
-			const va = a[map][id]
+			const va = a[map][id];
 			if (!va) {
 				add[map][id] = vb;
 			} else if (va.toString() === vb.toString()) {
