@@ -55,12 +55,14 @@ export default function merge(baseGamedata, addGamedata, prefix) {
 			obj.dialogueID = newId;
 		})],
 		// items are referenced by rooms' item list
-		['items', (oldId, newId) => Object.values(b.rooms).map(({
+		['items', (oldId, newId) => Object.values(b.rooms).forEach(({
 			items
-		}) => items).filter(({
-			id,
-		}) => id === oldId).forEach(obj => {
-			obj.id = newId;
+		}) => {
+			items.filter(({
+				id,
+			}) => id === oldId).forEach(obj => {
+				obj.id = newId;
+			});
 		})],
 		// sprites aren't referenced
 		['sprites', () => {}],

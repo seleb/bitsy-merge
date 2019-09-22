@@ -692,14 +692,14 @@ function merge(baseGamedata, addGamedata, prefix) {
     });
   }], // items are referenced by rooms' item list
   ['items', function (oldId, newId) {
-    return Object.values(b.rooms).map(function (_ref4) {
+    return Object.values(b.rooms).forEach(function (_ref4) {
       var items = _ref4.items;
-      return items;
-    }).filter(function (_ref5) {
-      var id = _ref5.id;
-      return id === oldId;
-    }).forEach(function (obj) {
-      obj.id = newId;
+      return items.filter(function (_ref5) {
+        var id = _ref5.id;
+        return id === oldId;
+      }).forEach(function (obj) {
+        obj.id = newId;
+      });
     });
   }], // sprites aren't referenced
   ['sprites', function () {}], // tiles are referenced by rooms' tilemap
