@@ -21,9 +21,9 @@
 		"prepare": "npm run build"
 	},
 	"devDependencies": {
-		"@babel/plugin-transform-runtime": "^7.9.0",
-		"@babel/preset-env": "^7.9.5",
-		"@babel/runtime": "^7.9.2",
+		"@babel/plugin-transform-runtime": "^7.10.4",
+		"@babel/preset-env": "^7.10.4",
+		"@babel/runtime": "^7.10.4",
 		"jest": "^24.9.0",
 		"rollup": "^1.32.1",
 		"rollup-plugin-babel": "^4.4.0",
@@ -31,7 +31,7 @@
 		"rollup-plugin-node-resolve": "^4.2.4"
 	},
 	"dependencies": {
-		"@bitsy/parser": "^1.0.2"
+		"@bitsy/parser": "^1.1.0"
 	},
 	"jest": {
 		"testEnvironment": "node"
