@@ -53,6 +53,7 @@ var colourUtils = createCommonjsModule(function (module, exports) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.rgbStringToNum = exports.numToRgbString = void 0;
 
   function numToRgbString(num) {
     return `${num >> 16 & 255},${num >> 8 & 255},${num & 255}`;
@@ -68,14 +69,15 @@ var colourUtils = createCommonjsModule(function (module, exports) {
   exports.rgbStringToNum = rgbStringToNum;
 });
 unwrapExports(colourUtils);
-var colourUtils_1 = colourUtils.numToRgbString;
-var colourUtils_2 = colourUtils.rgbStringToNum;
+var colourUtils_1 = colourUtils.rgbStringToNum;
+var colourUtils_2 = colourUtils.numToRgbString;
 
 var dist = createCommonjsModule(function (module, exports) {
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.BitsyParser = exports.BitsyVariable = exports.BitsyEnding = exports.BitsyDialogue = exports.BitsyRoom = exports.BitsyPalette = exports.BitsyItem = exports.BitsySprite = exports.BitsyTile = exports.BitsyObjectBase = exports.BitsyResourceBase = exports.BitsyWorld = void 0;
 
   function parsePosition(str) {
     const [x, y] = str.split(",").map(n => parseInt(n, 10));
@@ -101,31 +103,13 @@ var dist = createCommonjsModule(function (module, exports) {
     }
 
     toString() {
-      function valuesToString(obj) {
-        return Object.keys(obj).map(s => obj[s].toString()).join('\n\n');
-      }
-
       return `${this.title}
 
 # BITSY VERSION ${this.bitsyVersion}
 
 ! ROOM_FORMAT ${this.roomFormat}
 
-${valuesToString(this.palettes)}
-
-${valuesToString(this.rooms)}
-
-${valuesToString(this.tiles)}
-
-${valuesToString(this.sprites)}
-
-${valuesToString(this.items)}
-
-${valuesToString(this.dialogue)}
-
-${valuesToString(this.endings)}
-
-${valuesToString(this.variables)}`;
+${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogue, this.endings, this.variables].map(map => Object.values(map).map(i => i.toString()).join('\n\n')).filter(i => i).join('\n\n')}`;
     }
 
   }
@@ -149,8 +133,8 @@ ${valuesToString(this.variables)}`;
 
   }
 
-  BitsyResourceBase.typeName = "";
   exports.BitsyResourceBase = BitsyResourceBase;
+  BitsyResourceBase.typeName = "";
 
   class BitsyObjectBase extends BitsyResourceBase {
     constructor() {
@@ -196,26 +180,26 @@ ${valuesToString(this.variables)}`;
 
   }
 
-  BitsyObjectBase.paletteDefault = 1;
   exports.BitsyObjectBase = BitsyObjectBase;
+  BitsyObjectBase.paletteDefault = 1;
 
   class BitsyTile extends BitsyObjectBase {}
 
+  exports.BitsyTile = BitsyTile;
   BitsyTile.paletteDefault = 1;
   BitsyTile.typeName = "TIL";
-  exports.BitsyTile = BitsyTile;
 
   class BitsySprite extends BitsyObjectBase {}
 
+  exports.BitsySprite = BitsySprite;
   BitsySprite.paletteDefault = 2;
   BitsySprite.typeName = "SPR";
-  exports.BitsySprite = BitsySprite;
 
   class BitsyItem extends BitsyObjectBase {}
 
+  exports.BitsyItem = BitsyItem;
   BitsyItem.paletteDefault = 2;
   BitsyItem.typeName = "ITM";
-  exports.BitsyItem = BitsyItem;
 
   class BitsyPalette extends BitsyResourceBase {
     constructor() {
@@ -236,19 +220,19 @@ ${valuesToString(this.variables)}`;
     }
 
     toString() {
-      return `${super.toString()}
-${this.colors.map(colourUtils.numToRgbString).join('\n')}`;
+      return `${[super.toString(), this.name && `NAME ${this.name}`, ...this.colors.map(colourUtils.numToRgbString)].filter(i => i).join('\n')}`;
     }
 
   }
 
-  BitsyPalette.typeName = "PAL";
   exports.BitsyPalette = BitsyPalette;
+  BitsyPalette.typeName = "PAL";
 
   class BitsyRoom extends BitsyResourceBase {
     constructor() {
       super(...arguments);
       this.tiles = [];
+      this.legacyWalls = [];
       this.items = [];
       this.exits = [];
       this.endings = [];
@@ -256,25 +240,26 @@ ${this.colors.map(colourUtils.numToRgbString).join('\n')}`;
     }
 
     toString() {
-      return [super.toString(), ...this.tiles.map(row => row.join(",")), ...this.items.map(({
+      return [super.toString(), ...this.tiles.map(row => row.join(",")), this.name && `NAME ${this.name}`, this.legacyWalls.length && `WAL ${this.legacyWalls.join(',')}`, ...this.items.map(({
         id,
         x,
         y
       }) => `ITM ${id} ${x},${y}`), ...this.exits.map(({
         from,
         to,
-        transition
-      }) => `EXT ${from.x},${from.y} ${to.room} ${to.x},${to.y}${transition ? ` FX ${transition}` : ""}`), ...this.endings.map(({
+        transition,
+        dialog
+      }) => ['EXT', `${from.x},${from.y}`, to.room, `${to.x},${to.y}`, transition && `FX ${transition}`, dialog && `DLG ${dialog}`].filter(i => i).join(' ')), ...this.endings.map(({
         id,
         x,
         y
-      }) => `END ${id} ${x},${y}`), `PAL ${this.palette}`].join('\n');
+      }) => `END ${id} ${x},${y}`), this.palette && `PAL ${this.palette}`].filter(i => i).join('\n');
     }
 
   }
 
-  BitsyRoom.typeName = "ROOM";
   exports.BitsyRoom = BitsyRoom;
+  BitsyRoom.typeName = "ROOM";
 
   class BitsyDialogue extends BitsyResourceBase {
     constructor() {
@@ -283,14 +268,13 @@ ${this.colors.map(colourUtils.numToRgbString).join('\n')}`;
     }
 
     toString() {
-      return `${super.toString()}
-${this.script}`;
+      return `${[super.toString(), this.script, this.name && `NAME ${this.name}`].filter(i => i).join('\n')}`;
     }
 
   }
 
-  BitsyDialogue.typeName = "DLG";
   exports.BitsyDialogue = BitsyDialogue;
+  BitsyDialogue.typeName = "DLG";
 
   class BitsyEnding extends BitsyResourceBase {
     constructor() {
@@ -305,8 +289,8 @@ ${this.script}`;
 
   }
 
-  BitsyEnding.typeName = "END";
   exports.BitsyEnding = BitsyEnding;
+  BitsyEnding.typeName = "END";
 
   class BitsyVariable extends BitsyResourceBase {
     constructor() {
@@ -321,8 +305,8 @@ ${this.value}`;
 
   }
 
-  BitsyVariable.typeName = "VAR";
   exports.BitsyVariable = BitsyVariable;
+  BitsyVariable.typeName = "VAR";
 
   class BitsyParser {
     constructor() {
@@ -380,7 +364,7 @@ ${this.value}`;
     }
 
     checkLine(check) {
-      return this.currentLine.startsWith(check);
+      return this.currentLine ? this.currentLine.startsWith(check) : false;
     }
 
     checkBlank() {
@@ -465,6 +449,10 @@ ${this.value}`;
       this.takeRoomTiles(room);
       this.tryTakeResourceName(room);
 
+      while (this.checkLine("WAL")) {
+        this.takeRoomLegacyWalls(room);
+      }
+
       while (this.checkLine("ITM")) {
         this.takeRoomItem(room);
       }
@@ -488,6 +476,11 @@ ${this.value}`;
       }
     }
 
+    takeRoomLegacyWalls(room) {
+      const walls = this.takeSplitOnce(" ")[1];
+      room.legacyWalls.push(...walls.split(","));
+    }
+
     takeRoomItem(room) {
       const item = this.takeSplitOnce(" ")[1];
       const [id, pos] = item.split(" ");
@@ -498,13 +491,15 @@ ${this.value}`;
 
     takeRoomExit(room) {
       const exit = this.takeSplitOnce(" ")[1];
-      const [from, toRoom, toPos, _, transition] = exit.split(" ");
+      const [from, toRoom, toPos, ...rest] = exit.split(" ");
+      const [, transition, dialog] = rest.join(' ').match(/(?:FX\s(.*))?\s?(?:DLG\s(.*))?/) || [];
       room.exits.push({
         from: parsePosition(from),
         to: Object.assign({
           room: toRoom
         }, parsePosition(toPos)),
-        transition
+        transition,
+        dialog
       });
     }
 
@@ -531,6 +526,8 @@ ${this.value}`;
         lines.push(this.takeLine());
         dialogue.script = lines.join('\n');
       } else dialogue.script = this.takeLine();
+
+      this.tryTakeResourceName(dialogue);
     }
 
     takeFrame() {
@@ -620,18 +617,18 @@ ${this.value}`;
   exports.BitsyParser = BitsyParser;
 });
 var parser = unwrapExports(dist);
-var dist_1 = dist.BitsyWorld;
-var dist_2 = dist.BitsyResourceBase;
-var dist_3 = dist.BitsyObjectBase;
-var dist_4 = dist.BitsyTile;
-var dist_5 = dist.BitsySprite;
-var dist_6 = dist.BitsyItem;
-var dist_7 = dist.BitsyPalette;
-var dist_8 = dist.BitsyRoom;
-var dist_9 = dist.BitsyDialogue;
-var dist_10 = dist.BitsyEnding;
-var dist_11 = dist.BitsyVariable;
-var dist_12 = dist.BitsyParser;
+var dist_1 = dist.BitsyParser;
+var dist_2 = dist.BitsyVariable;
+var dist_3 = dist.BitsyEnding;
+var dist_4 = dist.BitsyDialogue;
+var dist_5 = dist.BitsyRoom;
+var dist_6 = dist.BitsyPalette;
+var dist_7 = dist.BitsyItem;
+var dist_8 = dist.BitsySprite;
+var dist_9 = dist.BitsyTile;
+var dist_10 = dist.BitsyObjectBase;
+var dist_11 = dist.BitsyResourceBase;
+var dist_12 = dist.BitsyWorld;
 
 function parse(gamedata) {
   try {
