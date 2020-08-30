@@ -8,7 +8,7 @@ function parse(gamedata) {
 	}
 }
 
-export default function merge(baseGamedata, addGamedata, prefix) {
+export function merge(baseGamedata, addGamedata, prefix) {
 	const a = parse(baseGamedata);
 	const b = parse(addGamedata);
 

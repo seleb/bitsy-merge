@@ -25,7 +25,7 @@ notes:
 2. reference global
 
 ```js
-const merge = window.bitsyMerge;
+const { merge } = window.bitsyMerge;
 ```
 
 ### Node
@@ -39,11 +39,11 @@ npm install @bitsy/merge --save
 2. import
 
 ```js
-const merge = require("@bitsy/merge");
+const { merge } = require("@bitsy/merge");
 ```
 
 ```js
-import merge from '@bitsy/merge';
+import { merge } from '@bitsy/merge';
 ```
 
 ### Use

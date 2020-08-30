@@ -1,4 +1,4 @@
-import merge from "../..";
+import { merge } from "../..";
 import base from './base';
 import add from './add';
 
