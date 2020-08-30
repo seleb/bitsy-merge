@@ -24,11 +24,11 @@
 		"@babel/plugin-transform-runtime": "^7.11.0",
 		"@babel/preset-env": "^7.11.0",
 		"@babel/runtime": "^7.11.2",
-		"jest": "^24.9.0",
-		"rollup": "^1.32.1",
+		"jest": "^26.4.2",
+		"rollup": "^2.26.8",
 		"rollup-plugin-babel": "^4.4.0",
-		"rollup-plugin-commonjs": "^9.2.1",
-		"rollup-plugin-node-resolve": "^4.2.4"
+		"rollup-plugin-commonjs": "^10.1.0",
+		"rollup-plugin-node-resolve": "^5.2.0"
 	},
 	"dependencies": {
 		"@bitsy/parser": "^1.1.0"
