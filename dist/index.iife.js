@@ -65,30 +65,6 @@ var bitsyMerge = (function (exports) {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  var colourUtils = createCommonjsModule(function (module, exports) {
-
-    Object.defineProperty(exports, "__esModule", {
-      value: true
-    });
-    exports.rgbStringToNum = exports.numToRgbString = void 0;
-
-    function numToRgbString(num) {
-      return `${num >> 16 & 255},${num >> 8 & 255},${num & 255}`;
-    }
-
-    exports.numToRgbString = numToRgbString;
-
-    function rgbStringToNum(str) {
-      const [r, g, b] = str.split(",");
-      return parseInt(b, 10) << 0 | parseInt(g, 10) << 8 | parseInt(r, 10) << 16;
-    }
-
-    exports.rgbStringToNum = rgbStringToNum;
-  });
-  unwrapExports(colourUtils);
-  var colourUtils_1 = colourUtils.rgbStringToNum;
-  var colourUtils_2 = colourUtils.numToRgbString;
-
   var dist = createCommonjsModule(function (module, exports) {
 
     Object.defineProperty(exports, "__esModule", {
@@ -237,7 +213,11 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
       }
 
       toString() {
-        return `${[super.toString(), this.name && `NAME ${this.name}`, ...this.colors.map(colourUtils.numToRgbString)].filter(i => i).join('\n')}`;
+        return `${[super.toString(), this.name && `NAME ${this.name}`, ...this.colors.map(({
+        r,
+        g,
+        b
+      }) => `${r},${g},${b}`)].filter(i => i).join('\n')}`;
       }
 
     }
@@ -410,7 +390,12 @@ ${this.value}`;
       }
 
       takeColor() {
-        return colourUtils.rgbStringToNum(this.takeLine());
+        const [r, g, b] = this.takeLine().split(',').map(component => parseInt(component, 10));
+        return {
+          r,
+          g,
+          b
+        };
       }
 
       takeResourceID(resource) {
@@ -634,18 +619,18 @@ ${this.value}`;
     exports.BitsyParser = BitsyParser;
   });
   var parser = unwrapExports(dist);
-  var dist_1 = dist.BitsyParser;
-  var dist_2 = dist.BitsyVariable;
-  var dist_3 = dist.BitsyEnding;
-  var dist_4 = dist.BitsyDialogue;
-  var dist_5 = dist.BitsyRoom;
-  var dist_6 = dist.BitsyPalette;
-  var dist_7 = dist.BitsyItem;
-  var dist_8 = dist.BitsySprite;
-  var dist_9 = dist.BitsyTile;
-  var dist_10 = dist.BitsyObjectBase;
-  var dist_11 = dist.BitsyResourceBase;
-  var dist_12 = dist.BitsyWorld;
+  dist.BitsyParser;
+  dist.BitsyVariable;
+  dist.BitsyEnding;
+  dist.BitsyDialogue;
+  dist.BitsyRoom;
+  dist.BitsyPalette;
+  dist.BitsyItem;
+  dist.BitsySprite;
+  dist.BitsyTile;
+  dist.BitsyObjectBase;
+  dist.BitsyResourceBase;
+  dist.BitsyWorld;
 
   function parse(gamedata) {
     try {
@@ -796,6 +781,8 @@ ${this.value}`;
   }
 
   exports.merge = merge;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
   return exports;
 
