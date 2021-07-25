@@ -192,7 +192,7 @@
 				return;
 			}
 			try {
-				var merged = window.bitsyMerge(base, add, prefix);
+				var merged = window.bitsyMerge.merge(base, add, prefix);
 				output.value = merged.gamedata;
 				log.value = `Merged successfully!
 
