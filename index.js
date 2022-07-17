@@ -20,6 +20,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		sprites: {},
 		tiles: {},
 		palettes: {},
+		tunes: {},
 		rooms: {},
 	};
 	const skip = {
@@ -30,6 +31,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		sprites: {},
 		tiles: {},
 		palettes: {},
+		tunes: {},
 		rooms: {},
 	};
 
@@ -88,6 +90,12 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		}) => palette === oldId).forEach(room => {
 			room.palette = newId;
 		})],
+		// tunes are referenced by rooms
+		['tunes', (oldId, newId) => Object.values(b.rooms).filter(({
+			tune,
+		}) => tune === oldId).forEach(room => {
+			room.tune = newId;
+		})],
 		// rooms are referenced by rooms' exits and by sprites' positions
 		['rooms', (oldId, newId) => {
 			Object.values(b.rooms).forEach(({
@@ -137,6 +145,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		'sprites',
 		'tiles',
 		'palettes',
+		'tunes',
 		'rooms',
 	].forEach(map => {
 		for (let id in add[map]) {
