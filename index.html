@@ -57,6 +57,15 @@
 			color: #6767b2;
 		}
 
+		h1,
+		h2 {
+			font-size: inherit;
+			margin: 0;
+			padding: 0;
+			font-weight: normal;
+			display: inline;
+		}
+
 		body>header {
 			background: #fff;
 			padding: 1rem 2rem;
@@ -142,12 +151,12 @@
 
 <body>
 	<header>
-		bitsy-merge
+		<h1>bitsy-merge</h1>
 	</header>
 	<main>
 		<form>
 			<section>
-				<header>Input</header>
+				<header><h2>Input</h2></header>
 				<label>
 					<span>Base:</span>
 					<textarea name="base" placeholder="Paste your base gamedata here"></textarea>
@@ -163,7 +172,7 @@
 				<input type="submit" value="Merge" />
 			</section>
 			<section>
-				<header>Output</header>
+				<header><h2>Output</h2></header>
 				<label>
 					<span>Output (click to copy):</span>
 					<textarea name="output" placeholder="Merged gamedata will go here" readonly></textarea>
