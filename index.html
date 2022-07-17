@@ -206,7 +206,7 @@
 				log.value = `Merged successfully!
 
 Detail:
-${JSON.stringify({ added: merged.added, skipped: merged.skipped }, undefined, 2)}`;
+${JSON.stringify({ added: merged.added, skipped: merged.skipped }, (key, value) => key === 'world' ? undefined : value, 2)}`;
 			} catch (error) {
 				console.error(error);
 				output.value = "";
