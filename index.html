@@ -208,6 +208,7 @@
 Detail:
 ${JSON.stringify({ added: merged.added, skipped: merged.skipped }, undefined, 2)}`;
 			} catch (error) {
+				console.error(error);
 				output.value = "";
 				log.value = `Error: ${error.message}`;
 			}
