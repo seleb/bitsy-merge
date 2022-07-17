@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/seleb/bitsy-merge/compare/v2.2.0...v2.2.1) (2022-07-17)
+
+
+### Bug Fixes
+
+* release files not being committed properly ([dbee6c5](https://github.com/seleb/bitsy-merge/commit/dbee6c56da1d53829cb24eb034b9ec9653d79269))
+
 # [2.1.0](https://github.com/seleb/bitsy-merge/compare/v2.0.0...v2.1.0) (2021-04-11)
 
 
@@ -34,6 +41,3 @@
 
 
 ## 1.0.1 (2019-07-26)
-
-
-

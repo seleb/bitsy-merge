@@ -70,7 +70,7 @@ var bitsyMerge = (function (exports) {
     Object.defineProperty(exports, "__esModule", {
       value: true
     });
-    exports.BitsyParser = exports.BitsyVariable = exports.BitsyEnding = exports.BitsyDialogue = exports.BitsyRoom = exports.BitsyPalette = exports.BitsyItem = exports.BitsySprite = exports.BitsyTile = exports.BitsyObjectBase = exports.BitsyResourceBase = exports.BitsyWorld = void 0;
+    exports.BitsyParser = exports.BitsyBlip = exports.BitsyTune = exports.BitsyVariable = exports.BitsyEnding = exports.BitsyDialogue = exports.BitsyRoom = exports.BitsyPalette = exports.BitsyItem = exports.BitsySprite = exports.BitsyTile = exports.BitsyObjectBase = exports.BitsyResourceBase = exports.BitsyWorld = void 0;
 
     function parsePosition(str) {
       const [x, y] = str.split(",").map(n => parseInt(n, 10));
@@ -84,7 +84,11 @@ var bitsyMerge = (function (exports) {
       constructor() {
         this.title = "";
         this.bitsyVersion = "";
+        this.bitsyVersionMajor = 0;
+        this.bitsyVersionMinor = 0;
         this.roomFormat = 1;
+        this.dialogCompatibility = 0;
+        this.textMode = 0;
         this.rooms = {};
         this.palettes = {};
         this.tiles = {};
@@ -93,6 +97,8 @@ var bitsyMerge = (function (exports) {
         this.dialogue = {};
         this.endings = {};
         this.variables = {};
+        this.tunes = {};
+        this.blips = {};
       }
 
       toString() {
@@ -100,9 +106,13 @@ var bitsyMerge = (function (exports) {
 
 # BITSY VERSION ${this.bitsyVersion}
 
+${this.bitsyVersionMajor >= 8 ? `! VER_MAJ ${this.bitsyVersionMajor}
+! VER_MIN ${this.bitsyVersionMinor}
 ! ROOM_FORMAT ${this.roomFormat}
+! DLG_COMPAT ${this.dialogCompatibility}
+! TXT_MODE ${this.textMode}` : `! ROOM_FORMAT ${this.roomFormat}`}
 
-${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogue, this.endings, this.variables].map(map => Object.values(map).map(i => i.toString()).join('\n\n')).filter(i => i).join('\n\n')}`;
+${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogue, this.endings, this.variables, this.tunes, this.blips].map(map => Object.values(map).map(i => i.toString()).join('\n\n')).filter(i => i).join('\n\n')}`;
       }
 
     }
@@ -110,7 +120,8 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
     exports.BitsyWorld = BitsyWorld;
 
     class BitsyResourceBase {
-      constructor() {
+      constructor(world) {
+        this.world = world;
         this.id = "";
         this.name = "";
       }
@@ -130,12 +141,14 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
     BitsyResourceBase.typeName = "";
 
     class BitsyObjectBase extends BitsyResourceBase {
-      constructor() {
-        super();
+      constructor(...args) {
+        super(...args);
         this.graphic = [];
         this.dialogueID = "";
         this.wall = false;
+        this.blip = "";
         this.palette = this.type.paletteDefault;
+        this.paletteBackground = this.type.paletteBackgroundDefault;
       }
 
       get type() {
@@ -168,12 +181,21 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
           props.push(`COL ${this.palette}`);
         }
 
+        if (this.paletteBackground !== this.type.paletteBackgroundDefault) {
+          props.push(`BGC ${this.paletteBackground}`);
+        }
+
+        if (this.blip) {
+          props.push(`BLIP ${this.blip}`);
+        }
+
         return props.join('\n');
       }
 
     }
 
     exports.BitsyObjectBase = BitsyObjectBase;
+    BitsyObjectBase.paletteBackgroundDefault = 0;
     BitsyObjectBase.paletteDefault = 1;
 
     class BitsyTile extends BitsyObjectBase {}
@@ -213,11 +235,11 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
       }
 
       toString() {
-        return `${[super.toString(), this.name && `NAME ${this.name}`, ...this.colors.map(({
+        return `${[super.toString(), this.world.bitsyVersionMajor < 8 && this.name && `NAME ${this.name}`, ...this.colors.map(({
         r,
         g,
         b
-      }) => `${r},${g},${b}`)].filter(i => i).join('\n')}`;
+      }) => `${r},${g},${b}`), this.world.bitsyVersionMajor >= 8 && this.name && `NAME ${this.name}`].filter(i => i).join('\n')}`;
       }
 
     }
@@ -234,6 +256,8 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
         this.exits = [];
         this.endings = [];
         this.palette = "";
+        this.avatar = "";
+        this.tune = "";
       }
 
       toString() {
@@ -250,7 +274,7 @@ ${[this.palettes, this.rooms, this.tiles, this.sprites, this.items, this.dialogu
           id,
           x,
           y
-        }) => `END ${id} ${x},${y}`), this.palette && `PAL ${this.palette}`].filter(i => i).join('\n');
+        }) => `END ${id} ${x},${y}`), this.palette && `PAL ${this.palette}`, this.avatar && `AVA ${this.avatar}`, this.tune && `TUNE ${this.tune}`].filter(i => i).join('\n');
       }
 
     }
@@ -305,6 +329,44 @@ ${this.value}`;
     exports.BitsyVariable = BitsyVariable;
     BitsyVariable.typeName = "VAR";
 
+    class BitsyTune extends BitsyResourceBase {
+      constructor() {
+        super(...arguments);
+        /** value is currently just the raw data as a string, not the actual parameters */
+        // TODO: parse actual parameters
+
+        this.value = "";
+      }
+
+      toString() {
+        return `${super.toString()}
+${this.value}`;
+      }
+
+    }
+
+    exports.BitsyTune = BitsyTune;
+    BitsyTune.typeName = "TUNE";
+
+    class BitsyBlip extends BitsyResourceBase {
+      constructor() {
+        super(...arguments);
+        /** value is currently just the raw data as a string, not the actual parameters */
+        // TODO: parse actual parameters
+
+        this.value = "";
+      }
+
+      toString() {
+        return `${super.toString()}
+${this.value}`;
+      }
+
+    }
+
+    exports.BitsyBlip = BitsyBlip;
+    BitsyBlip.typeName = "BLIP";
+
     class BitsyParser {
       constructor() {
         this.world = new BitsyWorld();
@@ -335,14 +397,18 @@ ${this.value}`;
 
         this.world.bitsyVersion = this.takeSplitOnce("# BITSY VERSION ")[1];
 
-        while (!this.done && !this.checkLine("! ROOM_FORMAT ")) {
+        while (!this.done && !this.checkLine("! ")) {
           this.skipLine();
         }
 
-        this.world.roomFormat = parseInt(this.takeSplitOnce("! ROOM_FORMAT ")[1], 10);
+        if (this.checkLine("! VER_MAJ")) this.world.bitsyVersionMajor = parseInt(this.takeSplitOnce("! VER_MAJ ")[1], 10);else this.world.bitsyVersionMajor = parseInt(this.world.bitsyVersion.split('.')[0], 10);
+        if (this.checkLine("! VER_MIN")) this.world.bitsyVersionMinor = parseInt(this.takeSplitOnce("! VER_MIN ")[1], 10);else this.world.bitsyVersionMinor = parseInt(this.world.bitsyVersion.split('.')[1], 10);
+        if (this.checkLine("! ROOM_FORMAT")) this.world.roomFormat = parseInt(this.takeSplitOnce("! ROOM_FORMAT ")[1], 10);
+        if (this.checkLine("! DLG_COMPAT")) this.world.dialogCompatibility = parseInt(this.takeSplitOnce("! DLG_COMPAT ")[1], 10);
+        if (this.checkLine("! TXT_MODE")) this.world.textMode = parseInt(this.takeSplitOnce("! TXT_MODE ")[1], 10);
 
         while (!this.done) {
-          if (this.checkLine("PAL")) this.takePalette();else if (this.checkLine("ROOM")) this.takeRoom();else if (this.checkLine("TIL")) this.takeTile();else if (this.checkLine("SPR")) this.takeSprite();else if (this.checkLine("ITM")) this.takeItem();else if (this.checkLine("END")) this.takeEnding();else if (this.checkLine("DLG")) this.takeDialogue();else if (this.checkLine("VAR")) this.takeVariable();else {
+          if (this.checkLine("PAL")) this.takePalette();else if (this.checkLine("ROOM")) this.takeRoom();else if (this.checkLine("TIL")) this.takeTile();else if (this.checkLine("SPR")) this.takeSprite();else if (this.checkLine("ITM")) this.takeItem();else if (this.checkLine("END")) this.takeEnding();else if (this.checkLine("DLG")) this.takeDialogue();else if (this.checkLine("VAR")) this.takeVariable();else if (this.checkLine("TUNE")) this.takeTune();else if (this.checkLine("BLIP")) this.takeBlip();else {
             while (!this.checkBlank()) {
               this.skipLine();
             }
@@ -403,12 +469,25 @@ ${this.value}`;
       }
 
       tryTakeResourceName(resource) {
-        resource.name = this.checkLine("NAME") ? this.takeSplitOnce(" ")[1] : "";
+        resource.name = this.checkLine("NAME") ? this.takeSplitOnce(" ")[1] : resource.name;
       }
 
       tryTakeObjectPalette(object) {
         if (this.checkLine("COL")) {
           object.palette = parseInt(this.takeSplitOnce(" ")[1]);
+        }
+      }
+
+      tryTakePaletteBackground(object) {
+        if (this.checkLine("BGC")) {
+          const bgc = this.takeSplitOnce(" ")[1];
+          object.paletteBackground = bgc === '*' ? '*' : parseInt(bgc);
+        }
+      }
+
+      tryTakeBlip(object) {
+        if (this.checkLine("BLIP")) {
+          object.blip = this.takeSplitOnce(" ")[1];
         }
       }
 
@@ -434,19 +513,20 @@ ${this.value}`;
       }
 
       takePalette() {
-        const palette = new BitsyPalette();
+        const palette = new BitsyPalette(this.world);
         this.takeResourceID(palette);
         this.tryTakeResourceName(palette);
 
-        while (!this.checkBlank()) {
+        while (!this.checkBlank() && !this.checkLine("NAME ")) {
           palette.colors.push(this.takeColor());
         }
 
+        this.tryTakeResourceName(palette);
         this.world.palettes[palette.id] = palette;
       }
 
       takeRoom() {
-        const room = new BitsyRoom();
+        const room = new BitsyRoom(this.world);
         this.takeResourceID(room);
         this.takeRoomTiles(room);
         this.tryTakeResourceName(room);
@@ -467,7 +547,9 @@ ${this.value}`;
           this.takeRoomEnding(room);
         }
 
-        this.takeRoomPalette(room);
+        if (this.checkLine("PAL ")) room.palette = this.takeSplitOnce(" ")[1];
+        if (this.checkLine("AVA ")) room.avatar = this.takeSplitOnce(" ")[1];
+        if (this.checkLine("TUNE ")) room.tune = this.takeSplitOnce(" ")[1];
         this.world.rooms[room.id] = room;
       }
 
@@ -511,10 +593,6 @@ ${this.value}`;
         room.endings.push(Object.assign({
           id
         }, parsePosition(pos)));
-      }
-
-      takeRoomPalette(room) {
-        room.palette = this.takeSplitOnce(" ")[1];
       }
 
       takeDialogueScript(dialogue) {
@@ -563,55 +641,86 @@ ${this.value}`;
       }
 
       takeTile() {
-        const tile = new BitsyTile();
+        const tile = new BitsyTile(this.world);
         this.takeResourceID(tile);
         this.takeObjectGraphic(tile);
         this.tryTakeResourceName(tile);
         this.tryTakeTileWall(tile);
         this.tryTakeObjectPalette(tile);
+        this.tryTakePaletteBackground(tile);
         this.world.tiles[tile.id] = tile;
       }
 
       takeSprite() {
-        const sprite = new BitsySprite();
+        const sprite = new BitsySprite(this.world);
         this.takeResourceID(sprite);
         this.takeObjectGraphic(sprite);
         this.tryTakeResourceName(sprite);
         this.tryTakeObjectDialogueID(sprite);
         this.tryTakeSpritePosition(sprite);
         this.tryTakeObjectPalette(sprite);
+        this.tryTakePaletteBackground(sprite);
+        this.tryTakeBlip(sprite);
         this.world.sprites[sprite.id] = sprite;
       }
 
       takeItem() {
-        const item = new BitsyItem();
+        const item = new BitsyItem(this.world);
         this.takeResourceID(item);
         this.takeObjectGraphic(item);
         this.tryTakeResourceName(item);
         this.tryTakeObjectDialogueID(item);
         this.tryTakeObjectPalette(item);
+        this.tryTakePaletteBackground(item);
+        this.tryTakeBlip(item);
         this.world.items[item.id] = item;
       }
 
       takeEnding() {
-        const ending = new BitsyEnding();
+        const ending = new BitsyEnding(this.world);
         this.takeResourceID(ending);
         this.takeDialogueScript(ending);
         this.world.endings[ending.id] = ending;
       }
 
       takeDialogue() {
-        const dialogue = new BitsyDialogue();
+        const dialogue = new BitsyDialogue(this.world);
         this.takeResourceID(dialogue);
         this.takeDialogueScript(dialogue);
         this.world.dialogue[dialogue.id] = dialogue;
       }
 
       takeVariable() {
-        const variable = new BitsyVariable();
+        const variable = new BitsyVariable(this.world);
         this.takeResourceID(variable);
         variable.value = this.takeLine();
         this.world.variables[variable.id] = variable;
+      }
+
+      takeTune() {
+        const tune = new BitsyTune(this.world);
+        this.takeResourceID(tune);
+        const lines = [];
+
+        while (!this.checkBlank()) {
+          lines.push(this.takeLine());
+        }
+
+        tune.value = lines.join('\n');
+        this.world.tunes[tune.id] = tune;
+      }
+
+      takeBlip() {
+        const blip = new BitsyBlip(this.world);
+        this.takeResourceID(blip);
+        const lines = [];
+
+        while (!this.checkBlank()) {
+          lines.push(this.takeLine());
+        }
+
+        blip.value = lines.join('\n');
+        this.world.blips[blip.id] = blip;
       }
 
     }
@@ -620,6 +729,8 @@ ${this.value}`;
   });
   var parser = unwrapExports(dist);
   dist.BitsyParser;
+  dist.BitsyBlip;
+  dist.BitsyTune;
   dist.BitsyVariable;
   dist.BitsyEnding;
   dist.BitsyDialogue;
@@ -647,20 +758,24 @@ ${this.value}`;
       variables: {},
       endings: {},
       dialogue: {},
+      blips: {},
       items: {},
       sprites: {},
       tiles: {},
       palettes: {},
+      tunes: {},
       rooms: {}
     };
     var skip = {
       variables: {},
       endings: {},
       dialogue: {},
+      blips: {},
       items: {},
       sprites: {},
       tiles: {},
       palettes: {},
+      tunes: {},
       rooms: {}
     }; // check for overlaps
     // [map name, fn to update references]
@@ -687,22 +802,37 @@ ${this.value}`;
       }).forEach(function (obj) {
         obj.dialogueID = newId;
       });
+    }], // blips are referenced by sprites/items
+    ['blips', function (oldId, newId) {
+      return Object.values(b.sprites).concat(Object.values(b.items)).filter(function (_ref4) {
+        var blip = _ref4.blip;
+        return blip === oldId;
+      }).forEach(function (obj) {
+        obj.blip = newId;
+      });
     }], // items are referenced by rooms' item list
     ['items', function (oldId, newId) {
-      return Object.values(b.rooms).forEach(function (_ref4) {
-        var items = _ref4.items;
-        items.filter(function (_ref5) {
-          var id = _ref5.id;
+      return Object.values(b.rooms).forEach(function (_ref5) {
+        var items = _ref5.items;
+        items.filter(function (_ref6) {
+          var id = _ref6.id;
           return id === oldId;
         }).forEach(function (obj) {
           obj.id = newId;
         });
       });
-    }], // sprites aren't referenced
-    ['sprites', function () {}], // tiles are referenced by rooms' tilemap
+    }], // sprites are referenced by rooms' avatar
+    ['sprites', function (oldId, newId) {
+      return Object.values(b.rooms).filter(function (_ref7) {
+        var avatar = _ref7.avatar;
+        return avatar === oldId;
+      }).forEach(function (room) {
+        room.avatar = newId;
+      });
+    }], // tiles are referenced by rooms' tilemap
     ['tiles', function (oldId, newId) {
-      return Object.values(b.rooms).map(function (_ref6) {
-        var tiles = _ref6.tiles;
+      return Object.values(b.rooms).map(function (_ref8) {
+        var tiles = _ref8.tiles;
         return tiles;
       }).forEach(function (tiles) {
         tiles.forEach(function (row) {
@@ -715,38 +845,46 @@ ${this.value}`;
       });
     }], // palettes are referenced by rooms
     ['palettes', function (oldId, newId) {
-      return Object.values(b.rooms).filter(function (_ref7) {
-        var palette = _ref7.palette;
+      return Object.values(b.rooms).filter(function (_ref9) {
+        var palette = _ref9.palette;
         return palette === oldId;
       }).forEach(function (room) {
         room.palette = newId;
       });
+    }], // tunes are referenced by rooms
+    ['tunes', function (oldId, newId) {
+      return Object.values(b.rooms).filter(function (_ref10) {
+        var tune = _ref10.tune;
+        return tune === oldId;
+      }).forEach(function (room) {
+        room.tune = newId;
+      });
     }], // rooms are referenced by rooms' exits and by sprites' positions
     ['rooms', function (oldId, newId) {
-      Object.values(b.rooms).forEach(function (_ref8) {
-        var exits = _ref8.exits;
-        exits.filter(function (_ref9) {
-          var room = _ref9.to.room;
+      Object.values(b.rooms).forEach(function (_ref11) {
+        var exits = _ref11.exits;
+        exits.filter(function (_ref12) {
+          var room = _ref12.to.room;
           return room === oldId;
         }).forEach(function (exit) {
           exit.to.room = newId;
         });
       });
-      Object.values(b.sprites).map(function (_ref10) {
-        var position = _ref10.position;
+      Object.values(b.sprites).map(function (_ref13) {
+        var position = _ref13.position;
         return position;
       }).filter(function (p) {
         return p;
-      }).filter(function (_ref11) {
-        var room = _ref11.room;
+      }).filter(function (_ref14) {
+        var room = _ref14.room;
         return room === oldId;
       }).forEach(function (position) {
         position.room = newId;
       });
-    }]].forEach(function (_ref12) {
-      var _ref13 = _slicedToArray(_ref12, 2),
-          map = _ref13[0],
-          updateReferences = _ref13[1];
+    }]].forEach(function (_ref15) {
+      var _ref16 = _slicedToArray(_ref15, 2),
+          map = _ref16[0],
+          updateReferences = _ref16[1];
 
       for (var id in b[map]) {
         var vb = b[map][id];
@@ -765,7 +903,7 @@ ${this.value}`;
       }
     }); // do the merge
 
-    ['variables', 'endings', 'dialogue', 'items', 'sprites', 'tiles', 'palettes', 'rooms'].forEach(function (map) {
+    ['variables', 'endings', 'dialogue', 'blips', 'items', 'sprites', 'tiles', 'palettes', 'tunes', 'rooms'].forEach(function (map) {
       for (var id in add[map]) {
         a[map][id] = add[map][id];
       }
@@ -786,4 +924,4 @@ ${this.value}`;
 
   return exports;
 
-}({}));
+})({});
