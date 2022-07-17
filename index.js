@@ -64,8 +64,12 @@ export function merge(baseGamedata, addGamedata, prefix) {
 				obj.id = newId;
 			});
 		})],
-		// sprites aren't referenced
-		['sprites', () => {}],
+		// sprites are referenced by rooms' avatar
+		['sprites', (oldId, newId) =>  Object.values(b.rooms)
+			.filter(({ avatar }) => avatar === oldId)
+			.forEach(room => {
+				room.avatar = newId;
+		})],
 		// tiles are referenced by rooms' tilemap
 		['tiles', (oldId, newId) => Object.values(b.rooms).map(({
 			tiles,
