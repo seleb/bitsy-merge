@@ -16,6 +16,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		variables: {},
 		endings: {},
 		dialogue: {},
+		blips: {},
 		items: {},
 		sprites: {},
 		tiles: {},
@@ -27,6 +28,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		variables: {},
 		endings: {},
 		dialogue: {},
+		blips: {},
 		items: {},
 		sprites: {},
 		tiles: {},
@@ -55,6 +57,12 @@ export function merge(baseGamedata, addGamedata, prefix) {
 			dialogueID,
 		}) => dialogueID === oldId).forEach(obj => {
 			obj.dialogueID = newId;
+		})],
+		// blips are referenced by sprites/items
+		['blips', (oldId, newId) => Object.values(b.sprites).concat(Object.values(b.items)).filter(({
+			blip,
+		}) => blip === oldId).forEach(obj => {
+			obj.blip = newId;
 		})],
 		// items are referenced by rooms' item list
 		['items', (oldId, newId) => Object.values(b.rooms).forEach(({
@@ -141,6 +149,7 @@ export function merge(baseGamedata, addGamedata, prefix) {
 		'variables',
 		'endings',
 		'dialogue',
+		'blips',
 		'items',
 		'sprites',
 		'tiles',
